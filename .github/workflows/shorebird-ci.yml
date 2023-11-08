@@ -1,0 +1,53 @@
+name: Shorebird CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  patch:
+    defaults:
+      run:
+        shell: bash
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: Get Flutter Version from pubspec.yaml
+        id: get-flutter-version
+        run: |
+          flutter_version=$(cat ./pubspec.yaml | grep '  flutter:' | cut -d ':' -f2 | sed 's/ //')
+          echo "data=$flutter_version" >> $GITHUB_OUTPUT
+
+      - name: Get App Version from pubspec.yaml
+        id: get-app-version
+        run: |
+          app_version=$(cat ./pubspec.yaml | grep 'version' | cut -d ':' -f2 | sed 's/ //')
+          echo "data=$app_version" >> $GITHUB_OUTPUT
+
+      - name: 🐦 Setup Shorebird
+        uses: shorebirdtech/setup-shorebird@v0
+        run: shorebird --version
+        with:
+          flutter-version: ${{ steps.get-flutter-version.outputs.flutter_version }}
+
+      - name: setup keystore
+        run: |
+          mkdir -p android/app/keys
+          echo "${{ secrets.DEBUG_KEYSTORE }}" | base64 --decode > android/app/keys/debug-keystore.jks
+          echo "${{ secrets.DEBUG_KEY_PROPERTIES }}" | base64 --decode > android/debug-key.properties
+          echo "${{ secrets.PROD_KEYSTORE }}" | base64 --decode > android/app/keys/prod-keystore.jks
+          echo "${{ secrets.PROD_KEY_PROPERTIES }}" | base64 --decode > android/key.properties
+
+      - name: 🚀 Shorebird Release
+        run: shorebird release android --artifact apk --force
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
+      - name: save artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ format('apk-{0}', github.run_number) }}
+          path: ./build/app/outputs/flutter-apk/app-release.apk
