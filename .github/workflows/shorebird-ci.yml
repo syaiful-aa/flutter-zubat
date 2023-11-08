@@ -30,12 +30,12 @@ jobs:
       - name: check flutter version
         shell: bash
         run: |
-          echo "${{ steps.get-flutter-version.outputs.flutter_version }}"
+          echo "${{ steps.get-flutter-version.outputs.data }}"
 
       - name: 🐦 Setup Shorebird
         uses: shorebirdtech/setup-shorebird@v0
         with:
-          flutter-version: 3.13.7
+          flutter-version: ${{ steps.get-flutter-version.outputs.data }}
 
       - name: setup keystore
         run: |
