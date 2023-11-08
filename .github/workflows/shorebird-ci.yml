@@ -29,7 +29,6 @@ jobs:
 
       - name: 🐦 Setup Shorebird
         uses: shorebirdtech/setup-shorebird@v0
-        run: shorebird --version
         with:
           flutter-version: ${{ steps.get-flutter-version.outputs.flutter_version }}
 
@@ -42,7 +41,9 @@ jobs:
           echo "${{ secrets.PROD_KEY_PROPERTIES }}" | base64 --decode > android/key.properties
 
       - name: 🚀 Shorebird Release
-        run: shorebird release android --artifact apk --force
+        run: |
+          shorebird --version
+          shorebird release android --artifact apk --force
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
