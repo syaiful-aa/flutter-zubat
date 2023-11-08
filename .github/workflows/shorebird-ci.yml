@@ -35,14 +35,15 @@ jobs:
       - name: setup keystore
         run: |
           mkdir -p android/app/keys
-          echo "${{ secrets.DEBUG_KEYSTORE }}" | base64 --decode > android/app/keys/debug-keystore.jks
-          echo "${{ secrets.DEBUG_KEY_PROPERTIES }}" | base64 --decode > android/debug-key.properties
-          echo "${{ secrets.PROD_KEYSTORE }}" | base64 --decode > android/app/keys/prod-keystore.jks
+          echo "${{ secrets.DEBUG_KEYSTORE }}" | base64 --decode > android/app/keys/thoughtlab-debug.jks
+          echo "${{ secrets.DEBUG_KEY_PROPERTIES }}" | base64 --decode > android/key-debug.properties
+          echo "${{ secrets.PROD_KEYSTORE }}" | base64 --decode > android/app/keys/thoughtlab.jks
           echo "${{ secrets.PROD_KEY_PROPERTIES }}" | base64 --decode > android/key.properties
 
       - name: 🚀 Shorebird Release
         run: |
           shorebird --version
+          flutter --version
           shorebird release android --artifact apk --force
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
