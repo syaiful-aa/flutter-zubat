@@ -27,10 +27,15 @@ jobs:
           app_version=$(cat ./pubspec.yaml | grep 'version' | cut -d ':' -f2 | sed 's/ //')
           echo "data=$app_version" >> $GITHUB_OUTPUT
 
+      - name: check flutter version
+        shell: bash
+        run: |
+          echo "${{ steps.get-flutter-version.outputs.flutter_version }}"
+
       - name: 🐦 Setup Shorebird
         uses: shorebirdtech/setup-shorebird@v0
         with:
-          flutter-version: ${{ steps.get-flutter-version.outputs.flutter_version }}
+          flutter-version: 3.13.7
 
       - name: setup keystore
         run: |
@@ -40,10 +45,13 @@ jobs:
           echo "${{ secrets.PROD_KEYSTORE }}" | base64 --decode > android/app/keys/thoughtlab.jks
           echo "${{ secrets.PROD_KEY_PROPERTIES }}" | base64 --decode > android/key.properties
 
-      - name: 🚀 Shorebird Release
+      - name: check version
+        shell: bash
         run: |
           shorebird --version
-          shorebird release android --artifact apk --force
+
+      - name: 🚀 Shorebird Release
+        run: shorebird release android --artifact apk --force
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
