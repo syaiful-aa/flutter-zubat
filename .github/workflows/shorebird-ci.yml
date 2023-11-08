@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  patch:
+  release:
     defaults:
       run:
         shell: bash
@@ -43,7 +43,6 @@ jobs:
       - name: 🚀 Shorebird Release
         run: |
           shorebird --version
-          flutter --version
           shorebird release android --artifact apk --force
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
