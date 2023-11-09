@@ -28,7 +28,7 @@ jobs:
           current_ref="${{ github.ref_name }}"
           input_ref=${{ github.event.inputs.reference}}
           echo ">>> $current_ref | $input_ref"
-          echo ">>> ${{ github.event.inputs.action-type }}" | ${{ github.event.inputs.action-type == 'release' }}""
+          echo ">>> ${{ github.event.inputs.action-type }} | ${{ github.event.inputs.action-type == 'release' }}"
           if [ -n "$input_ref" ]; then
             current_ref=input_ref
           fi
