@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
                       Image.asset(AppImages.zubat),
                       TextButton(
                         onPressed: _openDetail,
-                        child: const Text('Open'),
+                        child: const Text('Buka'),
                       ),
                     ],
                   ),
