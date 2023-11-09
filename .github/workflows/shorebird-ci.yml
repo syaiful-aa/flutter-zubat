@@ -2,6 +2,16 @@ name: Shorebird CI
 
 on:
   workflow_dispatch:
+    inputs:
+      action:
+        type: choice
+        description: action type
+        options: 
+        - release
+        - patch
+      reference:
+        type: string
+        description: branch, tag, or commit sha
 
 jobs:
   release:
@@ -12,8 +22,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Setup git reference
+        id: setup-git-ref
+        run: |
+          current_ref="${{ github.ref_name }}"
+          input_ref=${{ github.event.inputs.reference}}
+          echo ">>> $current_ref | $input_ref"
+          if [ -n "$input_ref" ]; then
+            current_ref=input_ref
+          fi
+          echo "data=$current_ref" >> $GITHUB_OUTPUT
+
       - name: 📚 Git Checkout
         uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.setup-git-ref.outputs.data }}
 
       - name: Get Flutter Version from pubspec.yaml
         id: get-flutter-version
@@ -26,11 +49,6 @@ jobs:
         run: |
           app_version=$(cat ./pubspec.yaml | grep 'version' | cut -d ':' -f2 | sed 's/ //')
           echo "data=$app_version" >> $GITHUB_OUTPUT
-
-      - name: check flutter version
-        shell: bash
-        run: |
-          echo "${{ steps.get-flutter-version.outputs.data }}"
 
       - name: 🐦 Setup Shorebird
         uses: shorebirdtech/setup-shorebird@v0
@@ -45,17 +63,25 @@ jobs:
           echo "${{ secrets.PROD_KEYSTORE }}" | base64 --decode > android/app/keys/thoughtlab.jks
           echo "${{ secrets.PROD_KEY_PROPERTIES }}" | base64 --decode > android/key.properties
 
-      - name: check version
-        shell: bash
+      - name: check flutter and shorebird version
         run: |
+          echo "${{ steps.get-flutter-version.outputs.data }}"
           shorebird --version
 
+      - name: 🚀 Shorebird Patch
+        if: ${{ github.event.inputs.action == 'patch' }}"
+        run: shorebird patch android
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
       - name: 🚀 Shorebird Release
+        if: ${{ github.event.inputs.action == 'release' }}"
         run: shorebird release android --artifact apk --force
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
       - name: save artifact
+        if: ${{ github.event.inputs.action == 'release' }}"
         uses: actions/upload-artifact@v1
         with:
           name: ${{ format('apk-{0}', github.run_number) }}
