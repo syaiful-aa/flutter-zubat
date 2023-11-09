@@ -30,7 +30,7 @@ jobs:
           echo ">>> $current_ref | $input_ref"
           echo ">>> ${{ github.event.inputs.action-type }} | ${{ github.event.inputs.action-type == 'release' }}"
           if [ -n "$input_ref" ]; then
-            current_ref=input_ref
+            current_ref=$input_ref
           fi
           echo "data=$current_ref" >> $GITHUB_OUTPUT
 
