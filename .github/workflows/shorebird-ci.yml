@@ -70,19 +70,19 @@ jobs:
           shorebird --version
 
       - name: 🚀 Shorebird Patch
-        if: ${{ github.event.inputs.action-type == 'patch' }}"
+        if: ${{ github.event.inputs.action-type == 'patch' }}
         run: shorebird patch android
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
       - name: 🚀 Shorebird Release
-        if: ${{ github.event.inputs.action-type == 'release' }}"
+        if: ${{ github.event.inputs.action-type == 'release' }}
         run: shorebird release android --artifact apk --force
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
       - name: save artifact
-        if: ${{ github.event.inputs.action-type == 'release' }}"
+        if: ${{ github.event.inputs.action-type == 'release' }}
         uses: actions/upload-artifact@v1
         with:
           name: ${{ format('apk-{0}', github.run_number) }}
