@@ -34,6 +34,11 @@ jobs:
           fi
           echo "data=$current_ref" >> $GITHUB_OUTPUT
 
+      - name: Dump GitHub context
+        run: echo "$GITHUB_CONTEXT"
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+
       - name: 📚 Git Checkout
         uses: actions/checkout@v3
         with:
